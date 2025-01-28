@@ -63,9 +63,10 @@ export const atualizarEstoque = async (produtoId, novaQuantidade) => {
 };
 
 // 3. Listar Todas as Vendas
-export const listarVendas = async () => {
+export const listarVendas = async (usuarioId) => { // Modificado para receber userId
   try {
-    const querySnapshot = await getDocs(vendasCollection);
+    const vendasQuery = query(vendasCollection, where("usuarioId", "==", usuarioId));
+    const querySnapshot = await getDocs(vendasQuery);
     const vendas = querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),

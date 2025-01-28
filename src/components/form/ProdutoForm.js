@@ -1,6 +1,60 @@
 import React, { useState } from "react";
 import { criarProduto, atualizarProduto } from "../../services/firebaseProdutos";
 import { getAuth } from "firebase/auth";
+import styled from "styled-components";
+
+const ProdutoFormContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+`;
+
+const ProdutoFormGroup = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+`;
+
+const ProdutoLabel = styled.label`
+  font-size: 16px;
+  color: #34495e;
+`;
+
+const ProdutoInput = styled.input`
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 16px;
+  outline: none;
+  &:focus {
+    border-color: #1c2833;
+  }
+`;
+
+const ProdutoButton = styled.button`
+  background-color: #3498db;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #2980b9;
+  }
+`;
+
+const ProdutoError = styled.p`
+  color: red;
+  font-size: 14px;
+`;
+
 
 const ProdutoForm = ({ produtoAtual, onProdutoSalvo, onCancel }) => {
   const [nome, setNome] = useState(produtoAtual?.nome || "");
@@ -57,19 +111,21 @@ const ProdutoForm = ({ produtoAtual, onProdutoSalvo, onCancel }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div>
-        <label>Nome</label>
-        <input
+    <ProdutoFormContainer>
+      <ProdutoFormGroup>
+        <ProdutoLabel>Nome</ProdutoLabel>
+        <ProdutoInput
           type="text"
           value={nome}
           onChange={(e) => setNome(e.target.value)}
           required
           disabled={carregando}
         />
-      </div>
-      <div>
-        <label>Preço</label>
-        <input
+      </ProdutoFormGroup>
+
+      <ProdutoFormGroup>
+        <ProdutoLabel>Preço</ProdutoLabel>
+        <ProdutoInput
           type="number"
           value={preco}
           onChange={(e) => setPreco(e.target.value)}
@@ -78,10 +134,11 @@ const ProdutoForm = ({ produtoAtual, onProdutoSalvo, onCancel }) => {
           step="0.01"
           disabled={carregando}
         />
-      </div>
-      <div>
-        <label>Estoque</label>
-        <input
+      </ProdutoFormGroup>
+
+      <ProdutoFormGroup>
+        <ProdutoLabel>Estoque</ProdutoLabel>
+        <ProdutoInput
           type="number"
           value={estoque}
           onChange={(e) => setEstoque(e.target.value)}
@@ -89,17 +146,23 @@ const ProdutoForm = ({ produtoAtual, onProdutoSalvo, onCancel }) => {
           min="0"
           disabled={carregando}
         />
-      </div>
+      </ProdutoFormGroup>
 
-      {erro && <p style={{ color: "red" }}>{erro}</p>}
+      {erro && <ProdutoError>{erro}</ProdutoError>}
 
-      <button type="submit" disabled={carregando}>
-        {carregando ? "Salvando..." : produtoAtual ? "Atualizar" : "Criar"} Produto
-      </button>
-      <button type="button" onClick={onCancel} disabled={carregando}>
-        Cancelar
-      </button>
-    </form>
+      <ProdutoFormGroup>
+        <ProdutoButton type="submit" disabled={carregando}>
+          {carregando ? "Salvando..." : produtoAtual ? "Atualizar" : "Criar"} Produto
+        </ProdutoButton>
+      </ProdutoFormGroup>
+
+      <ProdutoFormGroup>
+        <ProdutoButton type="button" onClick={onCancel} disabled={carregando}>
+          Cancelar
+        </ProdutoButton>
+      </ProdutoFormGroup>
+    </ProdutoFormContainer>
+  </form>
   );
 };
 

@@ -15,6 +15,8 @@ import Produtos from "./Pages/Produto";
 import VendaList from "./Pages/Vendas";
 import VendaForm from "./components/form/VendaForm";
 import ProtectedRoute from "./config/ProtectedRoute";
+import { AuthProvider } from "./context/AuthContext";
+import Navigation from "./components/Navigation";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -24,55 +26,69 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+    }
+  };
+
   return (
     <Router>
-    <Routes>
-      {/* Rotas Públicas */}
-      <Route
-        path="/login"
-        element={user ? <Navigate to="/dashboard" /> : <Login />}
-      />
-      <Route
-        path="/signup"
-        element={user ? <Navigate to="/dashboard" /> : <Signup />}
-      />
-      <Route path="/" element={<Navigate to="/login" />} />
+      <AuthProvider>
+        <Routes>
+          {/* Rotas Públicas */}
+          <Route
+            path="/login"
+            element={user ? <Navigate to="/dashboard" /> : <Login />}
+          />
+          <Route
+            path="/signup"
+            element={user ? <Navigate to="/dashboard" /> : <Signup />}
+          />
+          <Route path="/" element={<Navigate to="/login" />} />
 
-      {/* Rotas Protegidas */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute user={user}>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/produtos"
-        element={
-          <ProtectedRoute user={user}>
-            <Produtos />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/vendas"
-        element={
-          <ProtectedRoute user={user}>
-            <VendaList />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/registrar-venda"
-        element={
-          <ProtectedRoute user={user}>
-            <VendaForm />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
-  </Router>
+          {/* Rotas Protegidas com Navegação */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute user={user}>
+                <Navigation handleLogout={handleLogout}/> {/* Exibe a navegação apenas nas rotas protegidas */}
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/produtos"
+            element={
+              <ProtectedRoute user={user}>
+                <Navigation handleLogout={handleLogout}/>
+                <Produtos />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vendas"
+            element={
+              <ProtectedRoute user={user}>
+                <Navigation handleLogout={handleLogout}/>
+                <VendaList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/registrar-venda"
+            element={
+              <ProtectedRoute user={user}>
+                <Navigation handleLogout={handleLogout}/>
+                <VendaForm />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 };
 

@@ -1,125 +1,105 @@
-import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
+// components/Navigation.js
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import { FaTachometerAlt, FaBox, FaShoppingCart, FaSignOutAlt } from 'react-icons/fa'; // Importando ícones
 
-const NavBar = styled.div`
-  text-align: center;
+const Sidebar = styled.div`
   position: fixed;
-  height: 80px;
-  width: 100vw;
+  top: 0;
+  left: ${(props) => (props.isOpen ? '0' : '-240px')};  /* Controla a visibilidade da barra */
+  width: 240px;
+  height: 100vh;
+  background-color: #1c2833;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  z-index: 1000;
+  transition: left 0.3s ease;  /* Anima a transição de abertura e fechamento */
+  
+  /* Quando o mouse passar por cima, abrir a barra */
+  &:hover {
+    left: 0;  /* Barra se abre quando o mouse está sobre ela */
+  }
+`;
+
+const MainContent = styled.div`
+  margin-left: ${(props) => (props.sidebarOpen ? '240px' : '0')};  /* Ajusta o conteúdo conforme a barra lateral */
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+`;
+
+const NavLinks = styled.nav`
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+`;
+
+const LinkStyled = styled(Link)`
+  color: #dcdcdc;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 10px 15px;
+  border-radius: 5px;
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  background-color: rgba(33, 33, 33, 0.95);
-  z-index: 20;
+  gap: 10px;
+  transition: all 0.3s;
 
-  @media (max-width: 768px) {
-    justify-content: space-around;
+  &:hover {
+    background-color: #34495e;
+    color: #fff;
   }
 `;
 
-const Logo = styled.h1`
-  font-family: Georgia, serif;
-  font-size: 40px;
+const LogoutButton = styled.button`
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin-bottom: 50px;
+  cursor: pointer;
+  align-self: center;
+  transition: background-color 0.3s;
 
-  img {
-    width: 60px;
+  &:hover {
+    background-color: #c0392b;
   }
 `;
 
-const NavLinks = styled.ul`
-  list-style: none;
-  display: flex;
-  gap: 50px;
-  font-family: Times, Times New Roman, serif;
-  text-align: center;
-  font-size: 20px;
-  font-weight: 100;
-
-  a {
-    text-decoration: none;
-    color: white;
-  }
-
-  @media (max-width: 768px) {
-    display: ${({ isOpen }) => (isOpen ? "block" : "none")}; /* Esconde/mostra no dropdown */
-    position: absolute;
-    top: 60px;
-    right: 0;
-    background-color: rgba(33, 33, 33, 0.95);
-    width: 100%;
-    text-align: center;
-    padding: 20px 0;
-
-    li {
-      margin: 10px 0;
-    }
-  }
-`;
-
-const Hamburger = styled.div`
-  display: none; /* Esconde o botão de hambúrguer no desktop */
-
-  @media (max-width: 768px) {
-    display: block;
-    cursor: pointer;
-  }
-
-  div {
-    width: 25px;
-    height: 3px;
-    background-color: white;
-    margin: 5px 0;
-    transition: 0.4s;
-  }
-`;
-
-const Navigation = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const navRef = useRef(null);
-
-
-  const handleClickOutside = (event) => {
-    if (navRef.current && !navRef.current.contains(event.target)) {
-      setIsOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
+const Navigation = ({ handleLogout }) => {
+  const [isOpen, setIsOpen] = useState(false); // Barra começa fechada
 
   return (
-    <NavBar ref={navRef}>
-      <Logo>
-        <a href="#home">
-          <img src="J (1)-Photoroom.png" alt="Logo" />
-        </a>
-      </Logo>
-      <Hamburger onClick={toggleMenu}>
-        <div />
-        <div />
-        <div />
-      </Hamburger>
-      <NavLinks isOpen={isOpen}>
-        <li>
-          <a href="#about">Sobre</a>
-        </li>
-        <li>
-          <a href="#projects">Projetos</a>
-        </li>
-        <li>
-          <a href="#contact">Contato</a>
-        </li>
-      </NavLinks>
-    </NavBar>
+    <>
+      <Sidebar isOpen={isOpen}>
+        <NavLinks>
+          <LinkStyled to="/dashboard">
+            <FaTachometerAlt /> Visão Geral
+          </LinkStyled>
+          <LinkStyled to="/produtos">
+            <FaBox /> Produtos
+          </LinkStyled>
+          <LinkStyled to="/vendas">
+            <FaShoppingCart /> Vendas
+          </LinkStyled>
+          <LinkStyled to="/registrar-venda">
+            <FaBox /> Registrar Venda
+          </LinkStyled>
+        </NavLinks>
+        <LogoutButton onClick={handleLogout}>
+          <FaSignOutAlt /> Sair
+        </LogoutButton>
+      </Sidebar>
+
+      <MainContent sidebarOpen={isOpen}>
+        {/* Aqui você pode renderizar o conteúdo principal das páginas */}
+      </MainContent>
+    </>
   );
 };
 
