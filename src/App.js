@@ -17,6 +17,8 @@ import VendaForm from "./components/form/VendaForm";
 import ProtectedRoute from "./config/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import Navigation from "./components/Navigation";
+import ClienteForm from "./components/form/ClienteForm";
+import ClienteList from "./Pages/Clientes";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -54,7 +56,7 @@ const App = () => {
             path="/dashboard"
             element={
               <ProtectedRoute user={user}>
-                <Navigation handleLogout={handleLogout}/> {/* Exibe a navegação apenas nas rotas protegidas */}
+                <Navigation handleLogout={handleLogout} /> {/* Exibe a navegação apenas nas rotas protegidas */}
                 <Dashboard />
               </ProtectedRoute>
             }
@@ -63,7 +65,7 @@ const App = () => {
             path="/produtos"
             element={
               <ProtectedRoute user={user}>
-                <Navigation handleLogout={handleLogout}/>
+                <Navigation handleLogout={handleLogout} />
                 <Produtos />
               </ProtectedRoute>
             }
@@ -72,8 +74,18 @@ const App = () => {
             path="/vendas"
             element={
               <ProtectedRoute user={user}>
-                <Navigation handleLogout={handleLogout}/>
+                <Navigation handleLogout={handleLogout} />
                 <VendaList />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/clientes"
+            element={
+              <ProtectedRoute user={user}>
+                <Navigation handleLogout={handleLogout} />
+                <ClienteList />
               </ProtectedRoute>
             }
           />
@@ -81,7 +93,7 @@ const App = () => {
             path="/registrar-venda"
             element={
               <ProtectedRoute user={user}>
-                <Navigation handleLogout={handleLogout}/>
+                <Navigation handleLogout={handleLogout} />
                 <VendaForm />
               </ProtectedRoute>
             }

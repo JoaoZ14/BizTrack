@@ -2,110 +2,159 @@ import React, { useEffect, useState } from "react";
 import ProdutoForm from "../components/form/ProdutoForm";
 import { deletarProduto, listarProdutos } from "../services/firebaseProdutos";
 import styled from "styled-components";
+import { FaEdit, FaTag, FaTrash } from "react-icons/fa";
+import { FiDollarSign, FiPackage } from "react-icons/fi";
 
-// Container para o componente
 const ProdutoListContainer = styled.div`
-  padding: 20px;
-  background-color: #f4f4f9;
-  margin-left: 40px;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 `;
 
-// Título da lista
-const ListaTitulo = styled.h2`
-  font-size: 24px;
-  color: #34495e;
-  margin-bottom: 20px;
-`;
-
-// Container para os cards
-const ProdutoCardContainer = styled.div`
+const Header = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  justify-content: space-between;
   align-items: center;
-  flex-direction: column;
-  gap: 20px;
-  margin-top: 100px;
-  margin-bottom: 100px;
-
-  justify-content: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 `;
 
-// Estilo para cada card de produto
-const ProdutoCard = styled.div`
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 350px;  // Largura maior para o card horizontal
+const Title = styled.h1`
+  font-size: 2rem;
+  color: #2c3e50;
+  margin: 0;
+`;
+
+const ProdutoFormContainer = styled.div`
   display: flex;
-  flex-direction: row;  // Alinha os itens na horizontal
-  padding: 5px 20px;
-  align-items: center;  // Alinha os itens verticalmente no centro
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  gap: 1rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+`;
+
+const ProdutoCardContainer = styled.div`
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+`;
+
+const ProdutoCard = styled.div`
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #eee;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
   }
 `;
 
-// Estilo para as informações do produto dentro do card
-const ProdutoInfo = styled.div`
-  margin-bottom: 2px;
-  margin-left: 10px;
-  width: 70%;
-  
+const ProdutoHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 `;
 
-const ProdutoNome = styled.h3`
-  font-size: 18px;
-  color: #34495e;
-  margin-bottom: 2px;
+const ProdutoName = styled.h3`
+  font-size: 1.25rem;
+  color: #2c3e50;
+  margin: 0;
+  font-weight: 600;
 `;
 
-const ProdutoPreco = styled.p`
-  font-size: 16px;
-  color: #1c2833;
-  margin-bottom: 2px;
+const ProdutoContent = styled.div`
+  display: grid;
+  gap: 1rem;
 `;
 
-const ProdutoEstoque = styled.p`
-  font-size: 14px;
-  color: #7f8c8d;
+const InfoItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  svg {
+    color: #3498db;
+  }
 `;
 
-// Botões de ação
+const PrecoEstoqueContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const ProdutoPreco = styled.span`
+  font-size: 1.1rem;
+  color: #00b894;
+  font-weight: 700;
+`;
+
+const ProdutoEstoque = styled.span`
+  font-size: 0.9rem;
+  color: #636e72;
+  background: #f1f2f6;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+`;
+
+const CategoryBadge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #0984e3;
+  background: #e3f2fd;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  width: fit-content;
+`;
+
 const AcoesContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  gap: 0.75rem;
+  margin-top: 1rem;
 `;
 
-const ProdutoButtonEdit = styled.button`
-  background-color: #3498db;
-  color: white;
-  padding: 8px 12px;
+const IconButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.2s;
+  font-weight: 500;
+
+  background-color: ${({ variant }) =>
+    variant === "edit" ? "#74b9ff" : "#ff7675"};
+  color: white;
 
   &:hover {
-    background-color: #2980b9;
+    background-color: ${({ variant }) =>
+      variant === "edit" ? "#0984e3" : "#d63031"};
+    transform: translateY(-1px);
+  }
+
+  svg {
+    font-size: 0.9rem;
   }
 `;
 
-const ProdutoButtonDelete = styled.button`
-  background-color:rgb(219, 52, 52);
-  color: white;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-
-  &:hover {
-    background-color:rgb(185, 41, 41);
-  }
+const Loading = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #7f8c8d;
 `;
 
 const ProdutoList = () => {
@@ -130,21 +179,57 @@ const ProdutoList = () => {
 
   return (
     <ProdutoListContainer>
-      <ListaTitulo>Lista de Produtos</ListaTitulo>
-      <ProdutoForm produtoAtual={produtoAtual} onProdutoSalvo={fetchProdutos} />
-      
+      <Header>
+        <Title>Gerenciamento de Produtos</Title>
+        <ProdutoForm
+          produtoAtual={produtoAtual}
+          onProdutoSalvo={() => {
+            fetchProdutos();
+            setProdutoAtual(null);
+          }}
+        />
+      </Header>
+
       <ProdutoCardContainer>
         {produtos.map((produto) => (
           <ProdutoCard key={produto.id}>
-            <ProdutoInfo>
-              <ProdutoNome>{produto.nome}</ProdutoNome>
-              <ProdutoPreco>R$ {produto.preco.toFixed(2)}</ProdutoPreco>
-              <ProdutoEstoque>Estoque: {produto.estoque}</ProdutoEstoque>
-            </ProdutoInfo>
+            <ProdutoHeader>
+              <ProdutoName>{produto.nome}</ProdutoName>
+            </ProdutoHeader>
+            <ProdutoContent>
+              <PrecoEstoqueContainer>
+                <InfoItem>
+                  <FiDollarSign />
+                  <ProdutoPreco>R$ {produto.preco.toFixed(2)}</ProdutoPreco>
+                </InfoItem>
+                <InfoItem>
+                  <FiPackage />
+                  <ProdutoEstoque>{produto.estoque} em estoque</ProdutoEstoque>
+                </InfoItem>
+              </PrecoEstoqueContainer>
+
+              {produto.categoriaNome && (
+                <CategoryBadge>
+                  <FaTag />
+                  {produto.categoriaNome}
+                </CategoryBadge>
+              )}
+            </ProdutoContent>
 
             <AcoesContainer>
-              <ProdutoButtonEdit onClick={() => setProdutoAtual(produto)}>Editar</ProdutoButtonEdit>
-              <ProdutoButtonDelete onClick={() => handleDelete(produto.id)}>Excluir</ProdutoButtonDelete>
+              <IconButton
+                variant="edit"
+                onClick={() => setProdutoAtual(produto)}
+              >
+                <FaEdit /> Editar
+              </IconButton>
+
+              <IconButton
+                variant="delete"
+                onClick={() => handleDelete(produto.id)}
+              >
+                <FaTrash /> Excluir
+              </IconButton>
             </AcoesContainer>
           </ProdutoCard>
         ))}

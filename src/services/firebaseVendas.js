@@ -5,47 +5,51 @@ const vendasCollection = collection(db, "vendas");
 const produtosCollection = collection(db, "produtos");
 
 // 1. Registrar Venda e Atualizar Estoque
-export const registrarVenda = async ({ usuarioId, produtoId, quantidade, total }) => {
-    try {
-      // Verificar se o usuarioId é válido
+export const registrarVenda = async ({ usuarioId, clienteId, produtos, total }) => {
+  try {
       if (!usuarioId) {
-        throw new Error("Usuário não autenticado");
+          throw new Error("Usuário não autenticado");
       }
 
-      // Verificar o estoque do produto
-      const produtoDoc = doc(db, "produtos", produtoId);
-      const produtoSnapshot = await getDoc(produtoDoc);
-  
-      if (!produtoSnapshot.exists()) {
-        throw new Error("Produto não encontrado");
+      // Verificar se todos os produtos têm estoque suficiente
+      for (const item of produtos) {
+          const produtoDoc = doc(db, "produtos", item.produtoId);
+          const produtoSnapshot = await getDoc(produtoDoc);
+
+          if (!produtoSnapshot.exists()) {
+              throw new Error(`Produto ${item.produtoId} não encontrado`);
+          }
+
+          const produtoData = produtoSnapshot.data();
+          if (produtoData.estoque < item.quantidade) {
+              throw new Error(`Estoque insuficiente para o produto ${produtoData.nome}`);
+          }
       }
-  
-      const produtoData = produtoSnapshot.data();
-      const estoqueAtual = produtoData.estoque;
-  
-      if (estoqueAtual < quantidade) {
-        throw new Error("Estoque insuficiente");
-      }
-  
-      // Registrar a venda
+
+      // Criar a venda com múltiplos produtos
       const novaVenda = {
-        produtoId,
-        quantidade,
-        total,
-        dataVenda: Timestamp.now(), // Data/hora atual
-        usuarioId, // Adicionando o usuarioId
+          clienteId,
+          usuarioId,
+          produtos, // Lista de produtos vendidos
+          total,
+          dataVenda: Timestamp.now(),
       };
-  
+
       const docRef = await addDoc(vendasCollection, novaVenda);
-  
-      // Atualizar o estoque do produto
-      await atualizarEstoque(produtoId, estoqueAtual - quantidade);
-  
+
+      // Atualizar o estoque de todos os produtos
+      for (const item of produtos) {
+          const produtoDoc = doc(db, "produtos", item.produtoId);
+          await updateDoc(produtoDoc, {
+              estoque: (await getDoc(produtoDoc)).data().estoque - item.quantidade,
+          });
+      }
+
       return docRef.id;
-    } catch (error) {
+  } catch (error) {
       console.error("Erro ao registrar venda: ", error);
       throw error;
-    }
+  }
 };
 
 // 2. Atualizar Estoque de Produto
@@ -63,13 +67,15 @@ export const atualizarEstoque = async (produtoId, novaQuantidade) => {
 };
 
 // 3. Listar Todas as Vendas
-export const listarVendas = async (usuarioId) => { // Modificado para receber userId
+export const listarVendas = async (usuarioId) => {
   try {
     const vendasQuery = query(vendasCollection, where("usuarioId", "==", usuarioId));
     const querySnapshot = await getDocs(vendasQuery);
     const vendas = querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
+      // Converter Firestore Timestamp para Date
+      dataVenda: doc.data().dataVenda?.toDate() || new Date()
     }));
     return vendas;
   } catch (error) {
@@ -114,3 +120,4 @@ export const listarVendasPorProduto = async (produtoId) => {
     throw error;
   }
 };
+

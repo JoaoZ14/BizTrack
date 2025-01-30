@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaTachometerAlt, FaBox, FaShoppingCart, FaSignOutAlt } from 'react-icons/fa'; // Importando ícones
+import { FaTachometerAlt, FaBox, FaShoppingCart, FaSignOutAlt, FaUser } from 'react-icons/fa'; // Importando ícones
 
 const Sidebar = styled.div`
   position: fixed;
@@ -83,6 +83,9 @@ const Navigation = ({ handleLogout }) => {
           </LinkStyled>
           <LinkStyled to="/produtos">
             <FaBox /> Produtos
+          </LinkStyled>
+          <LinkStyled to="/clientes">
+            <FaUser /> Clientes
           </LinkStyled>
           <LinkStyled to="/vendas">
             <FaShoppingCart /> Vendas
